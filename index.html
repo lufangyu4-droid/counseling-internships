@@ -1,1 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心實境 MindIntern | 北北桃諮商實習與心理機構招募地圖</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              50: '#f4f7f5',
+              100: '#e5ece7',
+              200: '#cedcd1',
+              500: '#52796f',
+              600: '#354f52',
+              700: '#2f3e46',
+            },
+            warm: {
+              50: '#faf8f5',
+              100: '#f5f0ea',
+              200: '#ebe1d5',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .kanban-col { min-height: 480px; }
+  </style>
+</head>
+<body class="bg-warm-50 text-slate-800 min-h-screen flex flex-col">
 
+  <!-- 頂部導覽列 -->
+  <header class="bg-white border-b border-warm-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-sage-500 text-white flex items-center justify-center shadow-md">
+          <i data-lucide="compass" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-sage-700 tracking-tight flex items-center gap-2">
+            心實境 <span class="text-xs bg-sage-100 text-sage-600 px-2 py-0.5 rounded-full font-medium">北北桃版</span>
+          </h1>
+          <p class="text-xs text-slate-600">臺灣諮商心理研究所實習與徵才媒合系統</p>
+        </div>
+      </div>
+
+      <!-- 切換頁籤與操作 -->
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <nav class="flex bg-warm-100 p-1 rounded-xl text-sm font-medium text-slate-600">
+          <button id="navExplore" onclick="switchTab('explore')" class="px-3.5 py-1.5 rounded-lg bg-white text-sage-700 shadow-sm transition flex items-center gap-1.5">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            <span>機構檢索</span>
+          </button>
+          <button id="navKanban" onclick="switchTab('kanban')" class="px-3.5 py-1.5 rounded-lg hover:text-sage-700 transition flex items-center gap-1.5">
+            <i data-lucide="trello" class="w-4 h-4"></i>
+            <span>申請看板</span>
+            <span id="kanbanCountBadge" class="ml-1 text-xs px-1.5 py-0.2 bg-sage-500 text-white rounded-full">0</span>
+          </button>
+        </nav>
+        <button onclick="openModal('addModal')" class="bg-sage-600 hover:bg-sage-700 text-white text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">新增機構</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- 檢索與探索視圖 (Explore Tab) -->
+    <section id="viewExplore" class="space-y-6">
+      
+      <!-- 搜尋與多重篩選面板 -->
+      <div class="bg-white rounded-2xl p-5 border border-warm-200 shadow-sm space-y-4">
+        
+        <!-- 城市與關鍵字欄位 -->
+        <div class="flex flex-col md:flex-row gap-3">
+          <!-- 城市快捷選擇 -->
+          <div class="flex bg-warm-100 p-1 rounded-xl text-sm font-medium w-full md:w-auto">
+            <button onclick="setCityFilter('all')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg bg-white text-sage-700 shadow-sm transition" data-city="all">全生活圈</button>
+            <button onclick="setCityFilter('台北市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="台北市">台北市</button>
+            <button onclick="setCityFilter('新北市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="新北市">新北市</button>
+            <button onclick="setCityFilter('桃園市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="桃園市">桃園市</button>
+          </div>
+
+          <!-- 關鍵字搜尋框 -->
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="搜尋機構名稱、捷運站點、督導專長或關鍵字..." class="w-full pl-10 pr-4 py-2 bg-warm-50 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-sage-500">
+          </div>
+        </div>
+
+        <!-- 細部過濾器（行政區、實習類別、場域、督導福利） -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">行政區</label>
+            <select id="districtSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+              <option value="all">全部行政區</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">招募身分</label>
+            <select id="roleSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+              <option value="all">所有類別</option>
+              <option value="全職實習">碩三全職駐地實習</option>
+              <option value="兼職實習">碩二兼職實習</option>
+              <option value="諮商心理師">執照諮商心理師</option>
+              <option value="實習行政">行政兼任/助教</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">機構場域屬性</label>
+            <select id="settingSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+              <option value="all">全部場域</option>
+              <option value="大專校院">大專校院心輔中心</option>
+              <option value="社區諮商所">社區心理諮商所</option>
+              <option value="醫療院所">醫療院所精神科</option>
+              <option value="國高中輔導">高中職/國中輔導室</option>
+              <option value="社福基金會">社福/基金會機構</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">福利與保障</label>
+            <select id="perkSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+              <option value="all">不限福利</option>
+              <option value="has_allowance">有提供實習津貼/車馬費</option>
+              <option value="high_supervision">個督每週 $\ge$ 1.5小時</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 機構總覽與列表 -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm text-slate-500">
+            符合條件機構：<span id="resultCount" class="font-bold text-sage-600">0</span> 家
+          </div>
+          <div class="text-xs text-slate-600 flex items-center gap-1">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-sage-500"></i>
+            督導規範符合臺灣諮商心理師實習法規門檻
+          </div>
+        </div>
+
+        <!-- 卡片網格 -->
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- 卡片由 JavaScript 動態生成 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 申請進度看板視圖 (Kanban Tab) -->
+    <section id="viewKanban" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-warm-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-bold text-sage-700 flex items-center gap-2">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 text-sage-500"></i>
+            個人實習申請進度追蹤
+          </h2>
+          <p class="text-xs text-slate-600">可自由將機構在不同階段移動，紀錄申請進度、備審清單與筆面試筆記</p>
+        </div>
+        <button onclick="exportKanbanData()" class="text-xs bg-warm-100 hover:bg-warm-200 text-slate-700 px-3 py-1.5 rounded-lg border border-warm-200 flex items-center gap-1.5 transition">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          匯出備份 JSON
+        </button>
+      </div>
+
+      <!-- 5 個階段看板 -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- 考慮中 -->
+        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span> 考慮關注中
+            </span>
+            <span id="count_considering" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-slate-600 font-medium">0</span>
+          </div>
+          <div id="col_considering" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'considering')" class="kanban-col space-y-3 flex-1"></div>
+        </div>
+
+        <!-- 備審撰寫中 -->
+        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
+            <span class="text-xs font-bold text-amber-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 備審撰寫中
+            </span>
+            <span id="count_preparing" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-amber-700 font-medium">0</span>
+          </div>
+          <div id="col_preparing" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'preparing')" class="kanban-col space-y-3 flex-1"></div>
+        </div>
+
+        <!-- 已寄出投遞 -->
+        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
+            <span class="text-xs font-bold text-blue-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span> 已送件完成
+            </span>
+            <span id="count_submitted" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-blue-700 font-medium">0</span>
+          </div>
+          <div id="col_submitted" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'submitted')" class="kanban-col space-y-3 flex-1"></div>
+        </div>
+
+        <!-- 筆面試通知 -->
+        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
+            <span class="text-xs font-bold text-purple-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span> 筆面試通知
+            </span>
+            <span id="count_interview" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-purple-700 font-medium">0</span>
+          </div>
+          <div id="col_interview" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'interview')" class="kanban-col space-y-3 flex-1"></div>
+        </div>
+
+        <!-- 放榜與錄取 -->
+        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
+            <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 放榜與錄取
+            </span>
+            <span id="count_offered" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-emerald-700 font-medium">0</span>
+          </div>
+          <div id="col_offered" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'offered')" class="kanban-col space-y-3 flex-1"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 彈窗：新增/回報機構資訊 -->
+  <div id="addModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-warm-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-sage-700 text-base flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-sage-500"></i>
+          新增 / 回報實習招募資訊
+        </h3>
+        <button onclick="closeModal('addModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="addForm" onsubmit="handleAddInstitution(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">機構全銜 *</label>
+          <input type="text" id="formName" required placeholder="例如：國立臺灣師範大學心理輔導中心" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5 focus:ring-1 focus:ring-sage-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">縣市 *</label>
+            <select id="formCity" onchange="updateFormDistricts()" required class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+              <option value="台北市">台北市</option>
+              <option value="新北市">新北市</option>
+              <option value="桃園市">桃園市</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">行政區 *</label>
+            <select id="formDistrict" required class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5"></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">招募身分 *</label>
+            <select id="formRole" required class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+              <option value="全職實習">全職實習</option>
+              <option value="兼職實習">兼職實習</option>
+              <option value="諮商心理師">諮商心理師</option>
+              <option value="實習行政">實習行政</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">場域屬性 *</label>
+            <select id="formSetting" required class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+              <option value="大專校院">大專校院</option>
+              <option value="社區諮商所">社區諮商所</option>
+              <option value="醫療院所">醫療院所</option>
+              <option value="國高中輔導">國高中輔導</option>
+              <option value="社福基金會">社福基金會</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">截止日期</label>
+            <input type="date" id="formDeadline" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">實習津貼</label>
+            <input type="text" id="formAllowance" placeholder="例如：月津貼 5,000 元 或 無津貼" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">個別督導安排說明</label>
+          <input type="text" id="formSupervision" placeholder="例如：每週 1.5 小時（資深心理師外聘督導）" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">招募簡章或官網連結</label>
+          <input type="url" id="formUrl" placeholder="https://..." class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2.5">
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 rounded-xl text-slate-600 bg-warm-100 hover:bg-warm-200">取消</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-white bg-sage-600 hover:bg-sage-700 shadow font-medium">儲存新增</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 彈窗：個人備忘與應備文件檢核 -->
+  <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-warm-200 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 id="modalInstName" class="font-bold text-sage-700 text-base">機構詳情與備忘</h3>
+          <p id="modalInstSub" class="text-xs text-slate-500">台北市大安區 · 大專校院</p>
+        </div>
+        <button onclick="closeModal('detailModal')" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- 應備文件檢核 -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-slate-700">📋 備審文件備妥檢查清單</label>
+        <div class="grid grid-cols-2 gap-2 text-xs bg-warm-50 p-3 rounded-xl border border-warm-200">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk_cv" onchange="saveChecklist()" class="rounded text-sage-600 focus:ring-sage-500">
+            <span>個人履歷與自傳</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk_plan" onchange="saveChecklist()" class="rounded text-sage-600 focus:ring-sage-500">
+            <span>實習計畫書 (含理念)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk_grade" onchange="saveChecklist()" class="rounded text-sage-600 focus:ring-sage-500">
+            <span>碩士在學成績單</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="chk_rec" onchange="saveChecklist()" class="rounded text-sage-600 focus:ring-sage-500">
+            <span>指導教授推薦函</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 個人備忘筆記 -->
+      <div class="space-y-1">
+        <label class="block text-xs font-bold text-slate-700">✍️ 面試重點與考古題個人備忘</label>
+        <textarea id="modalNote" rows="4" placeholder="在此記錄機構偏好諮商學派、歷年面試問題（如危機處理演練、團體歷程）、面試交通指南等..." class="w-full bg-warm-50 border border-warm-200 rounded-xl p-3 text-xs text-slate-700 focus:ring-1 focus:ring-sage-500"></textarea>
+      </div>
+
+      <div class="pt-2 flex justify-between items-center">
+        <button id="modalGoogleMapBtn" target="_blank" class="text-xs text-sage-600 hover:underline flex items-center gap-1">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 在 Google 地圖查看位置
+        </button>
+        <button onclick="saveModalDetails()" class="px-4 py-2 rounded-xl text-white bg-sage-600 hover:bg-sage-700 text-xs font-medium">儲存筆記</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-white border-t border-warm-200 py-6 mt-12 text-center text-xs text-slate-600">
+    <p>心實境 MindIntern © 專為臺灣諮商心理所研究生研發設計 · 遵循臺灣諮商心理師實習法規門檻標準</p>
+  </footer>
+
+  <script>
+    // 預設北北桃機構範例資料庫
+    const INITIAL_INSTITUTIONS = [
+      {
+        id: "ntu_counseling",
+        name: "國立臺灣大學心理輔導中心",
+        city: "台北市",
+        district: "大安區",
+        type: "全職實習",
+        setting: "大專校院",
+        deadline: "2026-11-20",
+        supervision: "每週個別督導 1.5 小時（資深專任心理師）",
+        allowance: "每月實習津貼 6,000 元",
+        status: "即將截止",
+        url: "https://counseling.ntu.edu.tw/",
+        tags: ["台大公館站", "個案量充足", "精神專科醫師駐診合作"]
+      },
+      {
+        id: "ntnu_counseling",
+        name: "國立臺灣師範大學學生輔導中心",
+        city: "台北市",
+        district: "大安區",
+        type: "全職實習",
+        setting: "大專校院",
+        deadline: "2026-11-25",
+        supervision: "每週個別督導 1.5 小時 + 隔週團體督導",
+        allowance: "依教育部大專規定核發津貼",
+        status: "開放報名",
+        url: "https://counseling.sa.ntnu.edu.tw/",
+        tags: ["古亭捷運站", "多元學派督導", "危機個案演練豐富"]
+      },
+      {
+        id: "see_mind_clinic",
+        name: "看見心理諮商所",
+        city: "台北市",
+        district: "松山區",
+        type: "全職實習",
+        setting: "社區諮商所",
+        deadline: "2026-12-05",
+        supervision: "每週個別督導 1 小時 + 所內研討會",
+        allowance: "提供實習教育補助與車馬費",
+        status: "開放報名",
+        url: "https://www.seemind.com.tw/",
+        tags: ["南京三民站", "深度伴侶諮商", "精神動力與創傷取向"]
+      },
+      {
+        id: "tmu_psych",
+        name: "臺北醫學大學附設醫院 精神科暨心理諮商室",
+        city: "台北市",
+        district: "信義區",
+        type: "兼職實習",
+        setting: "醫療院所",
+        deadline: "2026-12-10",
+        supervision: "每週個別督導 1 小時（臨床督導執照）",
+        allowance: "無津貼，享院內教育資源",
+        status: "開放報名",
+        url: "https://www.tmuh.org.tw/",
+        tags: ["六張犁/象山站", "精神醫學跨團隊會議", "成人心理衡鑑"]
+      },
+      {
+        id: "fju_counseling",
+        name: "天主教輔仁大學學生輔導中心",
+        city: "新北市",
+        district: "新莊區",
+        type: "全職實習",
+        setting: "大專校院",
+        deadline: "2026-11-30",
+        supervision: "每週個別督導 1.5 小時（專任心理師帶領）",
+        allowance: "每月發放 5,000 元津貼",
+        status: "開放報名",
+        url: "http://scc.fju.edu.tw/",
+        tags: ["輔大捷運站", "全人教育理念", "藝術與表達性媒材齊全"]
+      },
+      {
+        id: "femh_psych",
+        name: "亞東紀念醫院 精神醫學部",
+        city: "新北市",
+        district: "板橋區",
+        type: "全職實習",
+        setting: "醫療院所",
+        deadline: "2026-11-18",
+        supervision: "個別督導每週 1.5 小時 + 晨會個案研討",
+        allowance: "每月定額伙食與實習車馬費",
+        status: "即將截止",
+        url: "https://www.femh.org.tw/",
+        tags: ["亞東醫院捷運站", "醫學中心臨床訓練", "急性與日間病房經驗"]
+      },
+      {
+        id: "kuan_shin_clinic",
+        name: "寬心心理諮商所（板橋館）",
+        city: "新北市",
+        district: "板橋區",
+        type: "兼職實習",
+        setting: "社區諮商所",
+        deadline: "2026-12-15",
+        supervision: "每週個別督導 1 小時（外聘督導名師）",
+        allowance: "行政兼職工讀津貼時薪制",
+        status: "開放報名",
+        url: "https://www.kuan-shin.tw/",
+        tags: ["府中捷運站", "兒童遊戲治療", "社區自費個案諮商"]
+      },
+      {
+        id: "ncu_counseling",
+        name: "國立中央大學諮商輔導中心",
+        city: "桃園市",
+        district: "中壢區",
+        type: "全職實習",
+        setting: "大專校院",
+        deadline: "2026-12-01",
+        supervision: "每週個別督導 1.5 小時",
+        allowance: "提供實習津貼及校內宿舍抽籤資格",
+        status: "開放報名",
+        url: "https://counseling.ncu.edu.tw/",
+        tags: ["中壢高鐵/客運直達", "理工高壓個案議題", "團隊氣氛溫暖"]
+      },
+      {
+        id: "typc_hospital",
+        name: "衛生福利部桃園療養院",
+        city: "桃園市",
+        district: "桃園區",
+        type: "全職實習",
+        setting: "醫療院所",
+        deadline: "2026-11-22",
+        supervision: "每
