@@ -3,192 +3,456 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>心實境 MindIntern | 北北桃諮商實習與心理機構招募地圖</title>
-  <!-- Tailwind CSS CDN -->
+  <title>心實境 MindIntern | 北北桃諮商實習招募地圖</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            sage: {
-              50: '#f4f7f5',
-              100: '#e5ece7',
-              200: '#cedcd1',
-              500: '#52796f',
-              600: '#354f52',
-              700: '#2f3e46',
-            },
-            warm: {
-              50: '#faf8f5',
-              100: '#f5f0ea',
-              200: '#ebe1d5',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .kanban-col { min-height: 480px; }
   </style>
 </head>
-<body class="bg-warm-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-stone-50 text-slate-800 min-h-screen flex flex-col">
 
   <!-- 頂部導覽列 -->
-  <header class="bg-white border-b border-warm-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="bg-white border-b border-stone-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-sage-500 text-white flex items-center justify-center shadow-md">
-          <i data-lucide="compass" class="w-6 h-6"></i>
+        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-lg shadow">
+          心
         </div>
         <div>
-          <h1 class="text-xl font-bold text-sage-700 tracking-tight flex items-center gap-2">
-            心實境 <span class="text-xs bg-sage-100 text-sage-600 px-2 py-0.5 rounded-full font-medium">北北桃版</span>
+          <h1 class="text-lg font-bold text-slate-800 tracking-tight">
+            心實境 MindIntern <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">北北桃</span>
           </h1>
           <p class="text-xs text-slate-500">臺灣諮商心理研究所實習與徵才媒合系統</p>
         </div>
       </div>
 
-      <!-- 切換頁籤與操作 -->
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <nav class="flex bg-warm-100 p-1 rounded-xl text-sm font-medium text-slate-600">
-          <button id="navExplore" onclick="switchTab('explore')" class="px-3.5 py-1.5 rounded-lg bg-white text-sage-700 shadow-sm transition flex items-center gap-1.5">
-            <i data-lucide="search" class="w-4 h-4"></i>
-            <span>機構檢索</span>
-          </button>
-          <button id="navKanban" onclick="switchTab('kanban')" class="px-3.5 py-1.5 rounded-lg hover:text-sage-700 transition flex items-center gap-1.5">
-            <i data-lucide="trello" class="w-4 h-4"></i>
-            <span>申請看板</span>
-            <span id="kanbanCountBadge" class="ml-1 text-xs px-1.5 py-0.2 bg-sage-500 text-white rounded-full">0</span>
+      <div class="flex items-center space-x-2">
+        <nav class="flex bg-stone-100 p-1 rounded-xl text-sm font-medium">
+          <button id="navExplore" onclick="switchTab('explore')" class="px-3.5 py-1.5 rounded-lg bg-white text-emerald-800 shadow-sm">機構檢索</button>
+          <button id="navKanban" onclick="switchTab('kanban')" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">
+            申請看板 (<span id="kanbanCountBadge">0</span>)
           </button>
         </nav>
-        <button onclick="openModal('addModal')" class="bg-sage-600 hover:bg-sage-700 text-white text-sm px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition">
-          <i data-lucide="plus" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">新增機構</span>
+        <button onclick="openModal('addModal')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-sm px-3.5 py-2 rounded-xl shadow transition">
+          + 新增機構
         </button>
       </div>
     </div>
   </header>
 
-  <!-- 主內容容器 -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+  <!-- 主內容區 -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
 
-    <!-- 檢索與探索視圖 (Explore Tab) -->
+    <!-- 檢索視圖 -->
     <section id="viewExplore" class="space-y-6">
       
-      <!-- 搜尋與多重篩選面板 -->
-      <div class="bg-white rounded-2xl p-5 border border-warm-200 shadow-sm space-y-4">
-        
-        <!-- 城市與關鍵字欄位 -->
+      <!-- 篩選器 -->
+      <div class="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-4">
         <div class="flex flex-col md:flex-row gap-3">
-          <!-- 城市快捷選擇 -->
-          <div class="flex bg-warm-100 p-1 rounded-xl text-sm font-medium w-full md:w-auto">
-            <button onclick="setCityFilter('all')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg bg-white text-sage-700 shadow-sm transition" data-city="all">全生活圈</button>
-            <button onclick="setCityFilter('台北市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="台北市">台北市</button>
-            <button onclick="setCityFilter('新北市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="新北市">新北市</button>
-            <button onclick="setCityFilter('桃園市')" class="city-btn flex-1 md:flex-initial px-4 py-2 rounded-lg text-slate-600 hover:text-sage-700 transition" data-city="桃園市">桃園市</button>
+          <div class="flex bg-stone-100 p-1 rounded-xl text-sm font-medium">
+            <button onclick="setCityFilter('all')" class="city-btn px-4 py-2 rounded-lg bg-white text-emerald-800 shadow-sm" data-city="all">全生活圈</button>
+            <button onclick="setCityFilter('台北市')" class="city-btn px-4 py-2 rounded-lg text-slate-600" data-city="台北市">台北市</button>
+            <button onclick="setCityFilter('新北市')" class="city-btn px-4 py-2 rounded-lg text-slate-600" data-city="新北市">新北市</button>
+            <button onclick="setCityFilter('桃園市')" class="city-btn px-4 py-2 rounded-lg text-slate-600" data-city="桃園市">桃園市</button>
           </div>
 
-          <!-- 關鍵字搜尋框 -->
-          <div class="relative flex-1">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
-            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="搜尋機構名稱、捷運站點、督導專長或關鍵字..." class="w-full pl-10 pr-4 py-2 bg-warm-50 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-sage-500">
+          <div class="flex-1">
+            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="搜尋機構名稱、捷運站、督導或關鍵字..." class="w-full px-4 py-2 bg-stone-50 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
           </div>
         </div>
 
-        <!-- 細部過濾器（行政區、實習類別、場域、督導福利） -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">行政區</label>
-            <select id="districtSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+            <select id="districtSelect" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-slate-700">
               <option value="all">全部行政區</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">招募身分</label>
-            <select id="roleSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">實習/招募類別</label>
+            <select id="roleSelect" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-slate-700">
               <option value="all">所有類別</option>
-              <option value="全職實習">碩三全職駐地實習</option>
+              <option value="全職實習">碩三全職實習</option>
               <option value="兼職實習">碩二兼職實習</option>
               <option value="諮商心理師">執照諮商心理師</option>
-              <option value="實習行政">行政兼任/助教</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">機構場域屬性</label>
-            <select id="settingSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">機構場域</label>
+            <select id="settingSelect" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-slate-700">
               <option value="all">全部場域</option>
               <option value="大專校院">大專校院心輔中心</option>
               <option value="社區諮商所">社區心理諮商所</option>
               <option value="醫療院所">醫療院所精神科</option>
-              <option value="國高中輔導">高中職/國中輔導室</option>
-              <option value="社福基金會">社福/基金會機構</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">福利與保障</label>
-            <select id="perkSelect" onchange="applyFilters()" class="w-full bg-warm-50 border border-warm-200 rounded-lg p-2 text-slate-700 focus:ring-1 focus:ring-sage-500">
-              <option value="all">不限福利</option>
-              <option value="has_allowance">有提供實習津貼/車馬費</option>
-              <option value="high_supervision">個督每週 ≥ 1.5小時</option>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">福利條件</label>
+            <select id="perkSelect" onchange="applyFilters()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 text-slate-700">
+              <option value="all">不限</option>
+              <option value="has_allowance">有提供實習津貼</option>
             </select>
           </div>
         </div>
       </div>
 
-      <!-- 機構總覽與列表 -->
+      <!-- 統計與卡片網格 -->
       <div>
         <div class="flex items-center justify-between mb-4">
-          <div class="text-sm text-slate-500">
-            符合條件機構：<span id="resultCount" class="font-bold text-sage-600">0</span> 家
-          </div>
-          <div class="text-xs text-slate-600 flex items-center gap-1">
-            <i data-lucide="info" class="w-3.5 h-3.5 text-sage-500"></i>
-            督導規範符合臺灣諮商心理師實習法規門檻
+          <div class="text-sm text-slate-600">
+            符合條件機構：<strong id="resultCount" class="text-emerald-700 font-bold text-base">0</strong> 家
           </div>
         </div>
-
-        <!-- 卡片網格 -->
-        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- 卡片由 JavaScript 動態生成 -->
-        </div>
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </div>
     </section>
 
-    <!-- 申請進度看板視圖 (Kanban Tab) -->
+    <!-- 看板視圖 -->
     <section id="viewKanban" class="hidden space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-warm-200 shadow-sm">
+      <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-bold text-sage-700 flex items-center gap-2">
-            <i data-lucide="layout-dashboard" class="w-5 h-5 text-sage-500"></i>
-            個人實習申請進度追蹤
-          </h2>
-          <p class="text-xs text-slate-600">可自由將機構在不同階段移動，紀錄申請進度、備審清單與筆面試筆記</p>
+          <h2 class="text-base font-bold text-slate-800">個人實習申請進度追蹤看板</h2>
+          <p class="text-xs text-slate-500">可自由切換申請階段並記錄備忘清單</p>
         </div>
-        <button onclick="exportKanbanData()" class="text-xs bg-warm-100 hover:bg-warm-200 text-slate-700 px-3 py-1.5 rounded-lg border border-warm-200 flex items-center gap-1.5 transition">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          匯出備份 JSON
-        </button>
       </div>
 
-      <!-- 5 個階段看板 -->
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <!-- 考慮中 -->
-        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
-            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-slate-400"></span> 考慮關注中
-            </span>
-            <span id="count_considering" class="text-xs px-1.5 py-0.5 rounded-full bg-white text-slate-600 font-medium">0</span>
-          </div>
-          <div id="col_considering" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'considering')" class="kanban-col space-y-3 flex-1"></div>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="bg-stone-100 rounded-xl p-3 border border-stone-200">
+          <div class="font-bold text-xs text-slate-700 pb-2 border-b border-stone-200 mb-2">📌 考慮關注中 (<span id="count_considering">0</span>)</div>
+          <div id="col_considering" class="kanban-col space-y-2"></div>
         </div>
+        <div class="bg-stone-100 rounded-xl p-3 border border-stone-200">
+          <div class="font-bold text-xs text-amber-700 pb-2 border-b border-stone-200 mb-2">📝 備審撰寫中 (<span id="count_preparing">0</span>)</div>
+          <div id="col_preparing" class="kanban-col space-y-2"></div>
+        </div>
+        <div class="bg-stone-100 rounded-xl p-3 border border-stone-200">
+          <div class="font-bold text-xs text-blue-700 pb-2 border-b border-stone-200 mb-2">📨 已送件完成 (<span id="count_submitted">0</span>)</div>
+          <div id="col_submitted" class="kanban-col space-y-2"></div>
+        </div>
+        <div class="bg-stone-100 rounded-xl p-3 border border-stone-200">
+          <div class="font-bold text-xs text-purple-700 pb-2 border-b border-stone-200 mb-2">🎯 筆面試通知 (<span id="count_interview">0</span>)</div>
+          <div id="col_interview" class="kanban-col space-y-2"></div>
+        </div>
+        <div class="bg-stone-100 rounded-xl p-3 border border-stone-200">
+          <div class="font-bold text-xs text-emerald-700 pb-2 border-b border-stone-200 mb-2">🎉 放榜與錄取 (<span id="count_offered">0</span>)</div>
+          <div id="col_offered" class="kanban-col space-y-2"></div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- 備審撰寫中 -->
-        <div class="bg-warm-100/70 rounded-xl p-3 border border-warm-200 flex flex-col">
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-warm-200">
-            <span
+  <!-- 彈窗：新增機構 -->
+  <div id="addModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-bold text-slate-800 text-base">新增招募資訊</h3>
+        <button onclick="closeModal('addModal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+      </div>
+
+      <form id="addForm" onsubmit="handleAddInstitution(event)" class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block font-medium mb-1">機構全銜 *</label>
+          <input type="text" id="formName" required placeholder="例如：國立臺灣師範大學心輔中心" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-medium mb-1">縣市 *</label>
+            <select id="formCity" onchange="updateFormDistricts()" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2">
+              <option value="台北市">台北市</option>
+              <option value="新北市">新北市</option>
+              <option value="桃園市">桃園市</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">行政區 *</label>
+            <select id="formDistrict" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2"></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-medium mb-1">類別 *</label>
+            <select id="formRole" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2">
+              <option value="全職實習">全職實習</option>
+              <option value="兼職實習">兼職實習</option>
+              <option value="諮商心理師">諮商心理師</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">場域 *</label>
+            <select id="formSetting" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2">
+              <option value="大專校院">大專校院</option>
+              <option value="社區諮商所">社區諮商所</option>
+              <option value="醫療院所">醫療院所</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">截止日期</label>
+          <input type="date" id="formDeadline" class="w-full bg-stone-50 border border-stone-200 rounded-lg p-2">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-stone-100 rounded-lg text-slate-600">取消</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-700 text-white rounded-lg">確認儲存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_INSTS = [
+      { id: "ntu", name: "國立臺灣大學心理輔導中心", city: "台北市", district: "大安區", type: "全職實習", setting: "大專校院", deadline: "2026-11-20", supervision: "每週個督 1.5 小時", allowance: "月津貼 6,000 元", url: "https://counseling.ntu.edu.tw/" },
+      { id: "ntnu", name: "國立臺灣師範大學學生輔導中心", city: "台北市", district: "大安區", type: "全職實習", setting: "大專校院", deadline: "2026-11-25", supervision: "每週個督 1.5 小時", allowance: "依教育部規定核發", url: "https://counseling.sa.ntnu.edu.tw/" },
+      { id: "seemind", name: "看見心理諮商所", city: "台北市", district: "松山區", type: "全職實習", setting: "社區諮商所", deadline: "2026-12-05", supervision: "每週個督 1 小時", allowance: "提供教育補助", url: "https://www.seemind.com.tw/" },
+      { id: "tmu", name: "臺北醫學大學附設醫院 精神科", city: "台北市", district: "信義區", type: "兼職實習", setting: "醫療院所", deadline: "2026-12-10", supervision: "每週個督 1 小時", allowance: "無津貼", url: "https://www.tmuh.org.tw/" },
+      { id: "fju", name: "天主教輔仁大學學生輔導中心", city: "新北市", district: "新莊區", type: "全職實習", setting: "大專校院", deadline: "2026-11-30", supervision: "每週個督 1.5 小時", allowance: "月津貼 5,000 元", url: "http://scc.fju.edu.tw/" },
+      { id: "femh", name: "亞東紀念醫院 精神醫學部", city: "新北市", district: "板橋區", type: "全職實習", setting: "醫療院所", deadline: "2026-11-18", supervision: "每週個督 1.5 小時", allowance: "伙食與交通補助", url: "https://www.femh.org.tw/" },
+      { id: "kuanshin", name: "寬心心理諮商所", city: "新北市", district: "板橋區", type: "兼職實習", setting: "社區諮商所", deadline: "2026-12-15", supervision: "每週個督 1 小時", allowance: "行政兼職工讀津貼", url: "https://www.kuan-shin.tw/" },
+      { id: "ncu", name: "國立中央大學諮商輔導中心", city: "桃園市", district: "中壢區", type: "全職實習", setting: "大專校院", deadline: "2026-12-01", supervision: "每週個督 1.5 小時", allowance: "提供實習津貼及宿舍資格", url: "https://counseling.ncu.edu.tw/" },
+      { id: "typc", name: "衛生福利部桃園療養院", city: "桃園市", district: "桃園區", type: "全職實習", setting: "醫療院所", deadline: "2026-11-22", supervision: "每週個督 2 小時", allowance: "提供生活補助", url: "https://typc.mohw.gov.tw/" }
+    ];
+
+    const DISTRICTS = {
+      "台北市": ["大安區", "中正區", "中山區", "信義區", "松山區", "士林區", "文山區"],
+      "新北市": ["板橋區", "新莊區", "中和區", "永和區", "新店區", "三重區"],
+      "桃園市": ["中壢區", "桃園區", "龜山區", "八德區", "平鎮區"]
+    };
+
+    let currentCity = 'all';
+    let institutions = [];
+    let kanbanState = { "ntu": "preparing", "seemind": "considering" };
+
+    function startApp() {
+      // 強制載入預設資料，確保畫面一定有機構
+      const stored = localStorage.getItem('mindintern_data');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          institutions = (Array.isArray(parsed) && parsed.length > 0) ? parsed : INITIAL_INSTS;
+        } catch(e) {
+          institutions = INITIAL_INSTS;
+        }
+      } else {
+        institutions = INITIAL_INSTS;
+      }
+
+      const storedKanban = localStorage.getItem('mindintern_kanban');
+      if (storedKanban) {
+        try { kanbanState = JSON.parse(storedKanban); } catch(e){}
+      }
+
+      updateDistrictDropdown();
+      applyFilters();
+      renderKanban();
+    }
+
+    function setCityFilter(city) {
+      currentCity = city;
+      document.querySelectorAll('.city-btn').forEach(btn => {
+        if (btn.getAttribute('data-city') === city) {
+          btn.className = "city-btn px-4 py-2 rounded-lg bg-white text-emerald-800 shadow-sm";
+        } else {
+          btn.className = "city-btn px-4 py-2 rounded-lg text-slate-600";
+        }
+      });
+      updateDistrictDropdown();
+      applyFilters();
+    }
+
+    function updateDistrictDropdown() {
+      const select = document.getElementById('districtSelect');
+      select.innerHTML = '<option value="all">全部行政區</option>';
+      let list = [];
+      if (currentCity === 'all') {
+        list = [...DISTRICTS["台北市"], ...DISTRICTS["新北市"], ...DISTRICTS["桃園市"]];
+      } else if (DISTRICTS[currentCity]) {
+        list = DISTRICTS[currentCity];
+      }
+      list.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyFilters() {
+      const kw = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const dist = document.getElementById('districtSelect').value;
+      const role = document.getElementById('roleSelect').value;
+      const setting = document.getElementById('settingSelect').value;
+      const perk = document.getElementById('perkSelect').value;
+
+      const filtered = institutions.filter(item => {
+        if (currentCity !== 'all' && item.city !== currentCity) return false;
+        if (dist !== 'all' && item.district !== dist) return false;
+        if (role !== 'all' && item.type !== role) return false;
+        if (setting !== 'all' && item.setting !== setting) return false;
+        if (perk === 'has_allowance' && (item.allowance.includes('無') || item.allowance.includes('未提及'))) return false;
+        if (kw && !((item.name + item.city + item.district).toLowerCase().includes(kw))) return false;
+        return true;
+      });
+
+      renderCards(filtered);
+    }
+
+    function renderCards(list) {
+      document.getElementById('resultCount').textContent = list.length;
+      const grid = document.getElementById('cardsGrid');
+      grid.innerHTML = '';
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400">查無機構，請放寬搜尋條件。</div>';
+        return;
+      }
+
+      list.forEach(item => {
+        const inKanban = !!kanbanState[item.id];
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl p-5 border border-stone-200 shadow-sm hover:shadow transition flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="px-2.5 py-0.5 rounded-full font-medium ${item.type === '全職實習' ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-slate-700'}">${item.type}</span>
+              <span class="text-slate-500">${item.city} · ${item.district}</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mt-2">
+              <a href="${item.url}" target="_blank" class="hover:text-emerald-700 hover:underline">${item.name} ↗</a>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">${item.setting}</p>
+
+            <div class="mt-4 text-xs space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-100">
+              <div>📅 截止：<strong>${item.deadline}</strong></div>
+              <div>👥 督導：${item.supervision}</div>
+              <div>💰 津貼：${item.allowance}</div>
+            </div>
+          </div>
+
+          <div class="pt-4 mt-3 border-t border-stone-100 flex justify-end">
+            <button onclick="toggleKanban('${item.id}')" class="text-xs px-3 py-1.5 rounded-lg border ${inKanban ? 'bg-emerald-50 border-emerald-600 text-emerald-800 font-bold' : 'border-stone-200 text-slate-600 hover:border-emerald-600'}">
+              ${inKanban ? '✓ 追蹤中' : '+ 加入看板'}
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleKanban(id) {
+      if (kanbanState[id]) {
+        delete kanbanState[id];
+      } else {
+        kanbanState[id] = 'considering';
+      }
+      localStorage.setItem('mindintern_kanban', JSON.stringify(kanbanState));
+      applyFilters();
+      renderKanban();
+    }
+
+    function renderKanban() {
+      const stages = ['considering', 'preparing', 'submitted', 'interview', 'offered'];
+      const counts = { considering: 0, preparing: 0, submitted: 0, interview: 0, offered: 0 };
+      stages.forEach(st => document.getElementById(`col_${st}`).innerHTML = '');
+
+      document.getElementById('kanbanCountBadge').textContent = Object.keys(kanbanState).length;
+
+      Object.entries(kanbanState).forEach(([id, stage]) => {
+        const item = institutions.find(i => i.id === id);
+        if (!item) return;
+        if (counts[stage] !== undefined) counts[stage]++;
+
+        const el = document.createElement('div');
+        el.className = "bg-white p-3 rounded-xl border border-stone-200 text-xs space-y-1.5 shadow-sm";
+        el.innerHTML = `
+          <div class="font-bold text-slate-800">${item.name}</div>
+          <div class="text-slate-500 text-[11px]">${item.city} · ${item.deadline}</div>
+          <div class="pt-2 flex justify-between items-center">
+            <select onchange="updateStage('${id}', this.value)" class="bg-stone-50 border border-stone-200 rounded p-1 text-[11px]">
+              <option value="considering" ${stage==='considering'?'selected':''}>考慮中</option>
+              <option value="preparing" ${stage==='preparing'?'selected':''}>備審撰寫</option>
+              <option value="submitted" ${stage==='submitted'?'selected':''}>已送件</option>
+              <option value="interview" ${stage==='interview'?'selected':''}>面試通知</option>
+              <option value="offered" ${stage==='offered'?'selected':''}>放榜錄取</option>
+            </select>
+            <button onclick="toggleKanban('${id}')" class="text-red-500 hover:underline text-[11px]">移除</button>
+          </div>
+        `;
+        document.getElementById(`col_${stage}`).appendChild(el);
+      });
+
+      stages.forEach(st => {
+        document.getElementById(`count_${st}`).textContent = counts[st];
+      });
+    }
+
+    function updateStage(id, stage) {
+      kanbanState[id] = stage;
+      localStorage.setItem('mindintern_kanban', JSON.stringify(kanbanState));
+      renderKanban();
+    }
+
+    function switchTab(tab) {
+      if (tab === 'explore') {
+        document.getElementById('viewExplore').classList.remove('hidden');
+        document.getElementById('viewKanban').classList.add('hidden');
+        document.getElementById('navExplore').className = "px-3.5 py-1.5 rounded-lg bg-white text-emerald-800 shadow-sm";
+        document.getElementById('navKanban').className = "px-3.5 py-1.5 rounded-lg text-slate-600";
+      } else {
+        document.getElementById('viewExplore').classList.add('hidden');
+        document.getElementById('viewKanban').classList.remove('hidden');
+        document.getElementById('navKanban').className = "px-3.5 py-1.5 rounded-lg bg-white text-emerald-800 shadow-sm";
+        document.getElementById('navExplore').className = "px-3.5 py-1.5 rounded-lg text-slate-600";
+        renderKanban();
+      }
+    }
+
+    function updateFormDistricts() {
+      const city = document.getElementById('formCity').value;
+      const select = document.getElementById('formDistrict');
+      select.innerHTML = '';
+      (DISTRICTS[city] || []).forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        select.appendChild(opt);
+      });
+    }
+
+    function handleAddInstitution(e) {
+      e.preventDefault();
+      const newInst = {
+        id: "c_" + Date.now(),
+        name: document.getElementById('formName').value.trim(),
+        city: document.getElementById('formCity').value,
+        district: document.getElementById('formDistrict').value,
+        type: document.getElementById('formRole').value,
+        setting: document.getElementById('formSetting').value,
+        deadline: document.getElementById('formDeadline').value || "詳見簡章",
+        supervision: "依規定",
+        allowance: "依規定",
+        url: "#"
+      };
+      institutions.unshift(newInst);
+      kanbanState[newInst.id] = 'considering';
+      localStorage.setItem('mindintern_data', JSON.stringify(institutions));
+      localStorage.setItem('mindintern_kanban', JSON.stringify(kanbanState));
+      closeModal('addModal');
+      applyFilters();
+      renderKanban();
+      alert('新增成功！已自動加入追蹤看板。');
+    }
+
+    function openModal(id) {
+      if (id === 'addModal') updateFormDistricts();
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 啟動程式
+    startApp();
+  </script>
+</body>
+</html>
